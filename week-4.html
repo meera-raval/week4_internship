@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    #taskList {
+      max-width: 400px;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    #taskList ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #taskList li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #taskList li:last-child {
+      border-bottom: none;
+    }
+
+    #taskList input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    #taskList button {
+      background-color: #ff5757;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #taskInput {
+      width: calc(100% - 24px);
+      padding: 12px;
+      border: none;
+      border-radius: 4px 4px 0 0;
+    }
+
+    #addButton {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background-color: #4caf50;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 0 0 4px 4px;
+    }
+  </style>
+  <title>Task Manager</title>
+</head>
+<body>
+  <div id="taskList">
+    <input type="text" id="taskInput" placeholder="Add new task...">
+    <button id="addButton">Add Task</button>
+    <ul id="tasks"></ul>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const taskInput = document.getElementById('taskInput');
+      const addButton = document.getElementById('addButton');
+      const tasksList = document.getElementById('tasks');
+
+      // Load tasks from local storage
+      function loadTasks() {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasksList.innerHTML = '';
+
+        tasks.forEach(task => {
+          addTaskToList(task);
+        });
+      }
+
+      // Save tasks to local storage
+      function saveTasks(tasks) {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      // Add a task to the list
+      function addTaskToList(taskText) {
+        const li = document.createElement('li');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+
+        const taskLabel = document.createElement('span');
+        taskLabel.textContent = taskText;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+
+        li.appendChild(checkbox);
+        li.appendChild(taskLabel);
+        li.appendChild(deleteButton);
+
+        tasksList.appendChild(li);
+
+        // Delete task
+        deleteButton.addEventListener('click', function () {
+          tasksList.removeChild(li);
+          updateTasks();
+        });
+
+        // Mark task as completed/uncompleted
+        checkbox.addEventListener('change', function () {
+          updateTasks();
+        });
+      }
+
+      // Update tasks array and save to local storage
+      function updateTasks() {
+        const tasks = Array.from(tasksList.children).map(li => ({
+          text: li.querySelector('span').textContent,
+          completed: li.querySelector('input[type="checkbox"]').checked
+        }));
+
+        saveTasks(tasks);
+      }
+
+      // Add new task
+      addButton.addEventListener('click', function () {
+        const taskText = taskInput.value.trim();
+
+        if (taskText !== '') {
+          addTaskToList(taskText);
+          taskInput.value = '';
+          updateTasks();
+        }
+      });
+
+      // Load tasks on page load
+      loadTasks();
+    });
+  </script>
+</body>
+</html>
